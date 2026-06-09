@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Όμοια Κανονικά Πολύγωνα</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow-y: auto; }
+  body {
+    font-family: 'Georgia', serif;
+    background: #f7f9fc;
+    color: #1a1a2e;
+    padding: 12px;
+  }
+  h2 {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 12px;
+    color: #555;
+    margin-bottom: 10px;
+  }
+  .controls {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    padding: 10px 16px;
+    max-width: 640px;
+    margin: 0 auto 10px;
+  }
+  .control-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+  .control-row:last-child { margin-bottom: 0; }
+  .control-row label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1a2e;
+    white-space: nowrap;
+    min-width: 160px;
+  }
+  input[type=range] {
+    flex: 1;
+    accent-color: #3a86ff;
+    height: 6px;
+    cursor: pointer;
+  }
+  .val-badge {
+    font-size: 16px;
+    font-weight: 700;
+    min-width: 32px;
+    text-align: right;
+  }
+  .val-n { color: #3a86ff; }
+  .val-k { color: #e63946; }
+
+  .canvas-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .canvas-wrap {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    padding: 8px;
+    text-align: center;
+  }
+  .canvas-wrap h3 {
+    font-size: 12px;
+    margin-bottom: 4px;
+    font-weight: 600;
+  }
+  .h3-blue { color: #3a86ff; }
+  .h3-red { color: #e63946; }
+  canvas { display: block; border-radius: 6px; }
+
+  .status-box {
+    max-width: 640px;
+    margin: 0 auto 10px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 700;
+    transition: all 0.3s;
+  }
+  .status-yes {
+    background: #e8f5e9;
+    border: 2px solid #2e7d32;
+    color: #1b5e20;
+  }
+  .status-no {
+    background: #ffebee;
+    border: 2px solid #c62828;
+    color: #b71c1c;
+  }
+
+  .stats {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    padding: 10px 16px;
+    max-width: 640px;
+    margin: 0 auto 10px;
+  }
+  .stats h3 { font-size: 12px; font-weight: 700; color: #555; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.8px; }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    padding: 5px 10px;
+    background: #f7f9fc;
+    border-radius: 6px;
+  }
+  .stat-label { color: #555; }
+  .stat-val { font-weight: 700; color: #1a1a2e; font-family: 'Courier New', monospace; }
+  .stat-ratio {
+    grid-column: 1 / -1;
+    background: #e8f0ff;
+    border-left: 3px solid #3a86ff;
+  }
+  .stat-ratio .stat-label { color: #3a86ff; font-weight: 600; }
+
+  .info-box {
+    background: #fff8e1;
+    border-left: 4px solid #f59e0b;
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px;
+    max-width: 640px;
+    margin: 0 auto;
+    font-size: 12px;
+    line-height: 1.7;
+    color: #2c2c2c;
+  }
+  .info-box strong { color: #b45309; }
+</style>
+</head>
+<body>
+
+<h2>✦ Κανονικά Πολύγωνα και Ομοιότητα</h2>
+<p class="subtitle">Άλλαξε τον αριθμό πλευρών και παρατήρησε πότε τα πολύγωνα είναι όμοια</p>
+
+<div class="controls">
+  <div class="control-row">
+    <label>Αριθμός πλευρών <em>n</em> =</label>
+    <input type="range" id="nSlider" min="3" max="10" step="1" value="4">
+    <span class="val-badge val-n" id="nVal">4</span>
+  </div>
+  <div class="control-row">
+    <label>Λόγος ομοιότητας <em>k</em> =</label>
+    <input type="range" id="kSlider" min="0.5" max="3" step="0.01" value="1.5">
+    <span class="val-badge val-k" id="kVal">1.50</span>
+  </div>
+</div>
+
+<div class="canvas-row">
+  <div class="canvas-wrap">
+    <h3 class="h3-blue">Πολύγωνο 1 (n πλευρές)</h3>
+    <canvas id="c1" width="240" height="200"></canvas>
+  </div>
+  <div class="canvas-wrap">
+    <h3 class="h3-red">Πολύγωνο 2 (k · Πολύγωνο 1, n=4)</h3>
+    <canvas id="c2" width="240" height="200"></canvas>
+  </div>
+</div>
+
+<div class="status-box" id="statusBox">—</div>
+
+<div class="stats">
+  <h3>Μετρήσεις</h3>
+  <div class="stats-grid">
+    <div class="stat-row">
+      <span class="stat-label">Πλευρές Πολ. 1</span>
+      <span class="stat-val" id="s_n1">—</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Πλευρές Πολ. 2</span>
+      <span class="stat-val" id="s_n2">4</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Πλευρά Πολ. 1</span>
+      <span class="stat-val" id="s_side1">—</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Πλευρά Πολ. 2</span>
+      <span class="stat-val" id="s_side2">—</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Περίμετρος 1</span>
+      <span class="stat-val" id="s_p1">—</span>
+    </div>
+    <div class="stat-row">
+      <span class="stat-label">Περίμετρος 2</span>
+      <span class="stat-val" id="s_p2">—</span>
+    </div>
+    <div class="stat-row stat-ratio">
+      <span class="stat-label">Λόγος πλευρών (k)</span>
+      <span class="stat-val" id="s_ratio">—</span>
+    </div>
+  </div>
+</div>
+
+<div class="info-box">
+  <strong>💡 Παρατήρησε:</strong> Μετακίνησε το slider για να αλλάξεις τον αριθμό των πλευρών.
+  Παρατήρησε ποια πολύγωνα παραμένουν όμοια και πότε χάνεται η ομοιότητα.
+</div>
+
+<script>
+const R1 = 70; // radius polygon 1
+const FIXED_N2 = 4; // polygon 2 always has 4 sides
+
+function regularPolygonPoints(cx, cy, r, n) {
+  const pts = [];
+  for (let i = 0; i < n; i++) {
+    const angle = (2 * Math.PI * i / n) - Math.PI / 2;
+    pts.push({ x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) });
+  }
+  return pts;
+}
+
+function sideLength(pts) {
+  const dx = pts[1].x - pts[0].x;
+  const dy = pts[1].y - pts[0].y;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function drawPolygon(canvasId, n, r, color, labelColor) {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#f0f6ff';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const pts = regularPolygonPoints(cx, cy, r, n);
+
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y);
+  for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+  ctx.closePath();
+  ctx.fillStyle = color + '22';
+  ctx.fill();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+
+  // Label n
+  ctx.font = 'bold 12px Georgia';
+  ctx.fillStyle = labelColor || color;
+  ctx.textAlign = 'center';
+  ctx.fillText('n = ' + n, cx, cy + 4);
+}
+
+function updateAll() {
+  const n = parseInt(document.getElementById('nSlider').value);
+  const k = parseFloat(document.getElementById('kSlider').value);
+  document.getElementById('nVal').textContent = n;
+  document.getElementById('kVal').textContent = k.toFixed(2);
+
+  const R2 = R1 * k;
+
+  drawPolygon('c1', n, R1, '#3a86ff');
+  drawPolygon('c2', FIXED_N2, R2, '#e63946');
+
+  // Side lengths
+  const pts1 = regularPolygonPoints(120, 100, R1, n);
+  const pts2 = regularPolygonPoints(120, 100, R2, FIXED_N2);
+  const side1 = sideLength(pts1);
+  const side2 = sideLength(pts2);
+  const p1 = side1 * n;
+  const p2 = side2 * FIXED_N2;
+
+  document.getElementById('s_n1').textContent = n;
+  document.getElementById('s_side1').textContent = side1.toFixed(1);
+  document.getElementById('s_side2').textContent = side2.toFixed(1);
+  document.getElementById('s_p1').textContent = p1.toFixed(1);
+  document.getElementById('s_p2').textContent = p2.toFixed(1);
+  document.getElementById('s_ratio').textContent = (side2 / side1).toFixed(2);
+
+  // Status
+  const box = document.getElementById('statusBox');
+  if (n === FIXED_N2) {
+    box.className = 'status-box status-yes';
+    box.textContent = '✅ Τα πολύγωνα είναι ΟΜΟΙΑ — ίδιος αριθμός πλευρών (n=' + n + ') και λόγος k=' + k.toFixed(2);
+  } else {
+    box.className = 'status-box status-no';
+    box.textContent = '❌ Τα πολύγωνα ΔΕΝ είναι όμοια — διαφορετικός αριθμός πλευρών (' + n + ' ≠ ' + FIXED_N2 + ')';
+  }
+}
+
+document.getElementById('nSlider').addEventListener('input', updateAll);
+document.getElementById('kSlider').addEventListener('input', updateAll);
+updateAll();
+</script>
+</body>
+</html>
